@@ -37,12 +37,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
@@ -66,6 +66,7 @@ import com.stevdza_san.sprite.component.drawSpriteView
 import com.stevdza_san.sprite.domain.SpriteSheet
 import com.stevdza_san.sprite.domain.SpriteSpec
 import com.stevdza_san.sprite.domain.rememberSpriteState
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -130,6 +131,8 @@ fun App() {
 
         val pipeImage = imageResource(Res.drawable.pipe)
         val pipeCapImage = imageResource(Res.drawable.pipe_cap)
+
+        val scope = rememberCoroutineScope()
 
         // Animate background
         LaunchedEffect(game.status) {
@@ -309,13 +312,13 @@ fun App() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "BEST: 0",
+                text = "BEST: ${game.bestScore}",
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.displaySmall.fontSize,
                 fontFamily = ChewyFontFamily()
             )
             Text(
-                text = "0",
+                text = "${game.currentScore}",
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.displaySmall.fontSize,
                 fontFamily = ChewyFontFamily()
@@ -371,7 +374,7 @@ fun App() {
                     fontFamily = ChewyFontFamily()
                 )
                 Text(
-                    text = "SCORE: 0",
+                    text = "SCORE: ${game.currentScore}",
                     color = Color.White,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     fontWeight = FontWeight.Bold,
@@ -387,6 +390,9 @@ fun App() {
                     onClick = {
                         game.restart()
                         spriteState.start()
+                        scope.launch {
+                            backgroundOffsetX.snapTo(0f)
+                        }
                     }
                 ) {
                     Icon(

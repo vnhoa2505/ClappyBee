@@ -4,7 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.russhwolf.settings.ObservableSettings
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.random.Random
+
+const val SCORE_KEY = "SCORE"
 
 data class Game(
     val screenWidth: Int = 0,
@@ -16,7 +21,9 @@ data class Game(
     val pipeWidth: Float = 150f,
     val pipeVelocity: Float = 5f,
     val pipeGapSize: Float = 250f,
-) {
+): KoinComponent {
+    private val settings: ObservableSettings by inject()
+
     var status by mutableStateOf(GameStatus.Idle)
         private set
     var beeVelocity by mutableStateOf(0f)
@@ -32,12 +39,38 @@ data class Game(
 
     var pipePairs = mutableStateListOf<PipePair>()
 
+    var currentScore by mutableStateOf(0)
+        private set
+    var bestScore by mutableStateOf(0)
+        private set
+
+    init {
+        bestScore = settings.getInt(
+            key = SCORE_KEY,
+            defaultValue = 0
+        )
+        settings.addIntListener(
+            key = SCORE_KEY,
+            defaultValue = 0
+        ) {
+            bestScore = it
+        }
+    }
+
     fun start() {
         status = GameStatus.Started
     }
 
     fun gameOver() {
         status = GameStatus.Over
+        saveScore()
+    }
+
+    private fun saveScore() {
+        if (bestScore < currentScore) {
+            settings.putInt(key = SCORE_KEY, value = currentScore)
+            bestScore = currentScore
+        }
     }
 
     fun jump() {
@@ -47,6 +80,7 @@ data class Game(
     fun restart() {
         resetBeePosition()
         removePipes()
+        resetCurrentScore()
         start()
     }
 
@@ -57,6 +91,10 @@ data class Game(
 
     private fun removePipes() {
         pipePairs.clear()
+    }
+
+    private fun resetCurrentScore() {
+        currentScore = 0
     }
 
     fun updateGameProgress() {
@@ -72,6 +110,11 @@ data class Game(
             if (isCollision(pipePair = pipePair)) {
                 gameOver()
                 return
+            }
+
+            if (!pipePair.scored && bee.x > pipePair.x + pipeWidth / 2) {
+                pipePair.scored = true
+                currentScore += 1
             }
         }
 
