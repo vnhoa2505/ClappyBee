@@ -42,6 +42,7 @@ import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
@@ -49,11 +50,14 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import clappybee.composeapp.generated.resources.Res
 import clappybee.composeapp.generated.resources.background
 import clappybee.composeapp.generated.resources.bee_sprite
 import clappybee.composeapp.generated.resources.moving_background
+import clappybee.composeapp.generated.resources.pipe
+import clappybee.composeapp.generated.resources.pipe_cap
 import com.hoavu.clappybee.domain.Game
 import com.hoavu.clappybee.domain.GameStatus
 import com.hoavu.clappybee.ui.orange
@@ -62,10 +66,12 @@ import com.stevdza_san.sprite.component.drawSpriteView
 import com.stevdza_san.sprite.domain.SpriteSheet
 import com.stevdza_san.sprite.domain.SpriteSpec
 import com.stevdza_san.sprite.domain.rememberSpriteState
+import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 const val BEE_FRAME_SIZE = 80
+const val PIPE_CAP_HEIGHT = 50F
 
 @Composable
 @Preview
@@ -122,6 +128,10 @@ fun App() {
         val backgroundOffsetX = remember { Animatable(0f) }
         var imageWidth by remember { mutableStateOf(0) }
 
+        val pipeImage = imageResource(Res.drawable.pipe)
+        val pipeCapImage = imageResource(Res.drawable.pipe_cap)
+
+        // Animate background
         LaunchedEffect(game.status) {
             while (game.status == GameStatus.Started) {
                 backgroundOffsetX.animateTo(
@@ -215,6 +225,78 @@ fun App() {
                     offset = IntOffset(
                         x = (game.bee.x - game.beeRadius).toInt(),
                         y = (game.bee.y - game.beeRadius).toInt()
+                    )
+                )
+            }
+
+            game.pipePairs.forEach { pipePair ->
+//                drawRect(
+//                    color = Color.Blue,
+//                    topLeft = Offset(
+//                        x = pipePair.x - game.pipeWidth / 2,
+//                        y = 0f,
+//                    ),
+//                    size = Size(game.pipeWidth, pipePair.topHeight)
+//                )
+//
+//                drawRect(
+//                    color = Color.Blue,
+//                    topLeft = Offset(
+//                        x = pipePair.x - game.pipeWidth / 2,
+//                        y = pipePair.y + game.pipeGapSize / 2,
+//                    ),
+//                    size = Size(game.pipeWidth, pipePair.bottomHeight)
+//                )
+
+                // TOP PIPE
+                drawImage(
+                    image = pipeImage,
+                    dstOffset = IntOffset(
+                        x = (pipePair.x - game.pipeWidth / 2).toInt(),
+                        y = 0
+                    ),
+                    dstSize = IntSize(
+                        width = game.pipeWidth.toInt(),
+                        height = (pipePair.topHeight - PIPE_CAP_HEIGHT).toInt()
+                    )
+                )
+
+                // TOP PIPE CAP
+                drawImage(
+                    image = pipeCapImage,
+                    dstOffset = IntOffset(
+                        x = (pipePair.x - game.pipeWidth / 2).toInt(),
+                        y = (pipePair.topHeight - PIPE_CAP_HEIGHT).toInt()
+                    ),
+                    dstSize = IntSize(
+                        width = game.pipeWidth.toInt(),
+                        height = PIPE_CAP_HEIGHT.toInt()
+                    )
+                )
+
+                // BOTTOM PIPE CAP
+                drawImage(
+                    image = pipeCapImage,
+                    dstOffset = IntOffset(
+                        x = (pipePair.x - game.pipeWidth / 2).toInt(),
+                        y = (pipePair.y + game.pipeGapSize / 2).toInt()
+                    ),
+                    dstSize = IntSize(
+                        width = game.pipeWidth.toInt(),
+                        height = PIPE_CAP_HEIGHT.toInt()
+                    )
+                )
+
+                // BOTTOM PIPE
+                drawImage(
+                    image = pipeImage,
+                    dstOffset = IntOffset(
+                        x = (pipePair.x - game.pipeWidth / 2).toInt(),
+                        y = (pipePair.y + PIPE_CAP_HEIGHT + game.pipeGapSize / 2).toInt()
+                    ),
+                    dstSize = IntSize(
+                        width = game.pipeWidth.toInt(),
+                        height = (pipePair.bottomHeight - PIPE_CAP_HEIGHT).toInt()
                     )
                 )
             }
