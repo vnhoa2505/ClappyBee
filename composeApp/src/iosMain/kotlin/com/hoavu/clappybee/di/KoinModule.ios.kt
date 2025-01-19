@@ -1,6 +1,9 @@
 package com.hoavu.clappybee.di
 
+import com.hoavu.clappybee.domain.AudioPlayer
 import org.koin.core.module.Module
+import org.koin.dsl.module
 
-actual val targetModule: Module
-    get() = TODO("Not yet implemented")
+actual val targetModule: Module = module {
+    single<AudioPlayer> { AudioPlayer() }
+}

@@ -10,6 +10,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ import com.hoavu.clappybee.domain.Game
 import com.hoavu.clappybee.domain.GameStatus
 import com.hoavu.clappybee.ui.orange
 import com.hoavu.clappybee.util.ChewyFontFamily
+import com.hoavu.clappybee.util.getPlatform
 import com.stevdza_san.sprite.component.drawSpriteView
 import com.stevdza_san.sprite.domain.SpriteSheet
 import com.stevdza_san.sprite.domain.SpriteSpec
@@ -78,9 +80,11 @@ const val PIPE_CAP_HEIGHT = 50F
 @Preview
 fun App() {
     MaterialTheme {
+        val platform = remember { getPlatform() }
+
         var screenWidth by remember { mutableStateOf(0) }
         var screenHeight by remember { mutableStateOf(0) }
-        var game by remember { mutableStateOf(Game()) }
+        var game by remember { mutableStateOf(Game(platform = platform)) }
 
         val spriteState = rememberSpriteState(
             totalFrames = 9,
@@ -208,7 +212,10 @@ fun App() {
                         )
                     }
                 }
-                .clickable {
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
                     if (game.status == GameStatus.Started) {
                         game.jump()
                     }
