@@ -72,7 +72,9 @@ actual class AudioPlayer {
                 if (loop) {
                     while (shouldContinue) {
                         inputStream.reset()
-                        while (shouldContinue && inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        while (shouldContinue && inputStream.read(buffer)
+                                .also { bytesRead = it } != -1
+                        ) {
                             synchronized(playingLines) {
                                 shouldContinue = playingLines.containsKey(fileName)
                             }
@@ -82,7 +84,9 @@ actual class AudioPlayer {
                         }
                     }
                 } else {
-                    while (shouldContinue && inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    while (shouldContinue && inputStream.read(buffer)
+                            .also { bytesRead = it } != -1
+                    ) {
                         synchronized(playingLines) {
                             shouldContinue = playingLines.containsKey(fileName)
                         }
@@ -129,5 +133,12 @@ actual class AudioPlayer {
             throw FileNotFoundException("Resource not found: $resourcePath")
         }
         return FileInputStream(resourcePath.toFile()).use { it.readBytes() }
+
+        // Use the class loader to access resources packaged in the JAR
+//        val resourceStream = this::class.java
+//            .classLoader
+//            .getResourceAsStream("composeResources/clappybee.composeapp.generated.resources/files/$fileName")
+//            ?: throw FileNotFoundException("Resource not found: files/$fileName")
+//        return resourceStream.use { it.readBytes() }
     }
 }

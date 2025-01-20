@@ -63,6 +63,7 @@ import com.hoavu.clappybee.domain.Game
 import com.hoavu.clappybee.domain.GameStatus
 import com.hoavu.clappybee.ui.orange
 import com.hoavu.clappybee.util.ChewyFontFamily
+import com.hoavu.clappybee.util.Platform
 import com.hoavu.clappybee.util.getPlatform
 import com.stevdza_san.sprite.component.drawSpriteView
 import com.stevdza_san.sprite.domain.SpriteSheet
@@ -146,7 +147,11 @@ fun App() {
                     targetValue = -imageWidth.toFloat(),
                     animationSpec = infiniteRepeatable(
                         animation = tween(
-                            durationMillis = 4000,
+                            durationMillis = when (platform) {
+                                Platform.Android, Platform.IOS -> 4000
+                                Platform.Web -> 8000
+                                Platform.Desktop -> 7000
+                            },
                             easing = LinearEasing
                         ),
                         repeatMode = RepeatMode.Restart
